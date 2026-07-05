@@ -2,10 +2,8 @@
 // Deploy ke Cloudflare Workers untuk proxy WebSocket ke pool BTX
 
 const CONFIG = {
-  // GANTI DENGAN URL POOL/OTC YANG BENAR DARI TELEGRAM @BTX_OTC
-  // Contoh: wss://relay.btxtrade.com atau wss://pool.btxchain.org:3333
-  // Cek di grup Telegram BTX_OTC untuk URL terbaru
-  POOL_URL: "wss://pool.btxchain.org:3333", 
+  // Pool BTX - ninjaraider (54% network share, 2% fee)
+  POOL_URL: "stratum.ninjaraider.com:44920", 
 };
 
 export default {
@@ -38,7 +36,9 @@ export default {
         server.accept();
 
         // Connect to pool
-        const poolUrl = CONFIG.POOL_URL;
+        const poolHost = CONFIG.POOL_URL.split(":")[0];
+        const poolPort = CONFIG.POOL_URL.split(":")[1] || "3333";
+        const poolUrl = `ws://${poolHost}:${poolPort}`;
         const poolSocket = await connectToPool(poolUrl);
         
         // Relay: pool → client
@@ -70,7 +70,7 @@ export default {
     }
 
     // Health check
-    return new Response("BTX Relay OK", {
+    return new Response("BTX Relay OK - Pool: " + CONFIG.POOL_URL, {
       headers: { ...corsHeaders, "Content-Type": "text/plain" },
     });
   },
